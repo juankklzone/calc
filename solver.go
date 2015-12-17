@@ -7,6 +7,12 @@ import (
 	"unicode"
 )
 
+// ToRad converts a degree to radians
+func ToRad(degree float64) float64 {
+	grado := int64(math.Floor(degree)) % 360
+	return float64(grado) * math.Pi / 180.0
+}
+
 var oprData = map[string]struct {
 	prec  int
 	rAsoc bool // true = right // false = left
@@ -32,6 +38,7 @@ var funcs = map[string]func(x float64) float64{
 	"CBRT":  math.Cbrt,
 	"CEIL":  math.Ceil,
 	"FLOOR": math.Floor,
+	"RAD":   ToRad,
 }
 
 var consts = map[string]float64{
@@ -95,6 +102,7 @@ func ContainsLetter(s string) bool {
 	return false
 }
 
+// Solve reads a string with a expression an returns its evaluation
 func Solve(s string) float64 {
 	p := NewParser(strings.NewReader(s))
 	stack, _ := p.Parse()
