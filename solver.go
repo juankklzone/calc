@@ -1,17 +1,12 @@
 package calc
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
 	"unicode"
 )
-
-// ToRad converts a degree to radians
-func ToRad(degree float64) float64 {
-	grado := int64(math.Floor(degree)) % 360
-	return float64(grado) * math.Pi / 180.0
-}
 
 var oprData = map[string]struct {
 	prec  int
@@ -28,12 +23,15 @@ var oprData = map[string]struct {
 var funcs = map[string]func(x float64) float64{
 	"LN":    math.Log,
 	"ABS":   math.Abs,
-	"COS":   math.Cos,
-	"SIN":   math.Sin,
-	"TAN":   math.Tan,
-	"ACOS":  math.Acos,
-	"ASIN":  math.Asin,
-	"ATAN":  math.Atan,
+	"COS":   Cos,
+	"SIN":   Sin,
+	"TAN":   Tan,
+	"SEC":   Sec,
+	"CSC":   Csc,
+	"COT":   Cot,
+	"ACOS":  Acos,
+	"ASIN":  Asin,
+	"ATAN":  Atan,
 	"SQRT":  math.Sqrt,
 	"CBRT":  math.Cbrt,
 	"CEIL":  math.Ceil,
@@ -109,4 +107,19 @@ func Solve(s string) float64 {
 	stack = ShuntingYard(stack)
 	answer := SolvePostfix(stack)
 	return answer
+}
+
+//WrapFunction returns a function, which replaces all ocurrences
+//of the variables inside the expression, then it solve it using Solve()
+//it does not take take of lower/upper cases.
+//You should prevent use of variables named "pi" or "e" that will be replaced
+//instead of use its constant value.
+func WrapFunction(expression string) func(map[string]float64) float64 {
+	return func(mapVariables map[string]float64) float64 {
+		newExpr := expression
+		for variable, value := range mapVariables {
+			newExpr = strings.Replace(newExpr, variable, fmt.Sprintf("%v", value), -1)
+		}
+		return Solve(newExpr)
+	}
 }
